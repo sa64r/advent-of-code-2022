@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, appendFile, writeFileSync } from 'fs';
+import { readFileSync, appendFile, writeFileSync, existsSync } from 'fs';
 import { config } from 'dotenv';
 import { dirname } from 'path';
 import caller from 'caller';
@@ -15,12 +15,14 @@ export async function solve<T = string[]>({
   part2,
   parser,
 }: SolveArgs<T>) {
-  const part1Solved = existsSync('./input2.txt');
+  const year = new Date().getFullYear();
+  const dir = dirname(caller());
+  const part1Solved = existsSync(`${dir}/input2.txt`);
   const [solver, file, solutionsFile] = part1Solved
     ? [part2, './input2.txt', './solutions2.txt']
     : [part1, './input.txt', './solutions.txt'];
 
-  const dir = dirname(caller());
+  const partBeingSolved = part1Solved ? '2' : '1';
   const day = dir.replace(/.*day/, '');
   const fileName = `${dir}/${file}`;
   const input = parser(readFileSync(fileName, 'utf8'));
@@ -30,30 +32,32 @@ export async function solve<T = string[]>({
     console.log('Solution already attempted!');
     return;
   }
-  appendFile(`${dir}/solutions.txt`, `${answer}\n`, () => {});
+  appendFile(`${dir}/${solutionsFile}`, `${answer}\n`, () => {});
   const result = await fetch(
-    `https://adventofcode.com/2022/day/${day}/answer`,
+    `https://adventofcode.com/${year}/day/${day}/answer`,
     {
       method: 'POST',
       headers: {
         cookie: `session=${process.env.SESSION}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `level=1&answer=${answer}`,
+      body: `level=${partBeingSolved}&answer=${answer}`,
     },
   );
   const body = await result.text();
   if (body.includes('not the right answer')) {
-    console.log('Wrong answer!');
+    console.log('Wrong answer for part: ', partBeingSolved);
   } else {
-    console.log('Correct answer!');
-    writeFileSync(`${dir}/solutions2.txt`, '');
-    fetch(`https://adventofcode.com/2022/day/${day}/input`, {
-      headers: {
-        cookie: `session=${process.env.SESSION}`,
-      },
-    })
-      .then((res) => res.text())
-      .then((text) => writeFileSync(`${dir}/input2.txt`, text));
+    console.log('Correct answer for part: ', partBeingSolved);
+    if(!part1Solved){
+      writeFileSync(`${dir}/solutions2.txt`, '');
+      fetch(`https://adventofcode.com/${year}/day/${day}/input`, {
+        headers: {
+          cookie: `session=${process.env.SESSION}`,
+        },
+      })
+        .then((res) => res.text())
+        .then((text) => writeFileSync(`${dir}/input2.txt`, text));
+    }
   }
 }
