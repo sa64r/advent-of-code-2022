@@ -18,11 +18,10 @@ export async function solve<T = string[]>({
   const year = new Date().getFullYear();
   const dir = dirname(caller());
   const part1Solved = existsSync(`${dir}/input2.txt`);
-  const [solver, file, solutionsFile] = part1Solved
-    ? [part2, './input2.txt', './solutions2.txt']
-    : [part1, './input.txt', './solutions.txt'];
+  const [solver, file, solutionsFile, partBeingSolved] = part1Solved
+    ? [part2, './input2.txt', './solutions2.txt', '2']
+    : [part1, './input.txt', './solutions.txt', '1'];
 
-  const partBeingSolved = part1Solved ? '2' : '1';
   const day = dir.replace(/.*day/, '');
   const fileName = `${dir}/${file}`;
   const input = parser(readFileSync(fileName, 'utf8'));

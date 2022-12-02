@@ -42,8 +42,7 @@ function part2(_input: string[]) {
   }
   elvesCalorieCount.sort((a, b) => b - a);
 
-  let topThree = elvesCalorieCount.slice(0, 3).reduce((a, b) => a + b, 0);
-
+  const topThree = elvesCalorieCount.slice(0, 3).reduce((a, b) => a + b, 0);
 
   return topThree.toString();
 }
